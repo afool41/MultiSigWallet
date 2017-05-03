@@ -349,18 +349,22 @@ contract MultiSigWallet {
         constant
         returns (uint[] _transactionIds)
     {
-        uint[] memory transactionIdsTemp = new uint[](transactionCount);
+        if (   from > to
+            || to >= transactionCount)
+           throw;
+
+        uint[] memory transactionIdsTemp = new uint[](to - from + 1);
         uint count = 0;
         uint i;
-        for (i=0; i<transactionCount; i++)
+        for (i=from; i<=to; i++)
             if (   pending && !transactions[i].executed
                 || executed && transactions[i].executed)
             {
                 transactionIdsTemp[count] = i;
                 count += 1;
             }
-        _transactionIds = new uint[](to - from);
-        for (i=from; i<to; i++)
-            _transactionIds[i - from] = transactionIdsTemp[i];
+        _transactionIds = new uint[](count);
+        for (i=0; i<count; i++)
+            _transactionIds[i] = transactionIdsTemp[i];
     }
 }
